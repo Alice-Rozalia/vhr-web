@@ -1,19 +1,16 @@
-# vhr-web
+# Vue3.x + Ant Design 微人事
 
-## Project setup
+## 安装依赖
 ```
 yarn install
 ```
 
-### Compiles and hot-reloads for development
+### 运行
 ```
 yarn serve
 ```
 
-### Compiles and minifies for production
+### 打包部署
 ```
 yarn build
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
