@@ -18,7 +18,7 @@
           </a-input>
         </a-form-item>
         <a-form-item>
-          <a-button style="width:328px" @click="login" type="primary">
+          <a-button style="width:328px" @click.prevent="login" type="primary">
             登录
           </a-button>
         </a-form-item>
@@ -27,18 +27,13 @@
   </div>
 </template>
 <script>
-  import {
-    UserOutlined,
-    LockOutlined
-  } from '@ant-design/icons-vue'
-  import {
-    toRefs
-  } from 'vue'
-  import {
-    state,
-    login,
-    validateInfos
-  } from '../hooks/login'
+  import { UserOutlined, LockOutlined } from '@ant-design/icons-vue'
+  import { toRefs, reactive } from 'vue'
+  import { useForm } from '@ant-design-vue/use'
+  import { loginApi } from '@/api/user'
+  import { useRouter } from 'vue-router'
+  import axios from 'axios'
+  import { message } from 'ant-design-vue'
 
   export default {
     components: {
@@ -46,8 +41,51 @@
       LockOutlined
     },
     setup() {
+      const state = reactive({
+        loginForm: {
+          username: 'admin',
+          password: '123456'
+        }
+      })
+
+      const router = useRouter()
+
+      const { validate, validateInfos } = useForm(state.loginForm, reactive({
+        username: [{
+          required: true,
+          message: '请输入用户名！'
+        }],
+        password: [{
+          required: true,
+          message: '请输入密码！'
+        }]
+      }))
+
+      const login = e => {
+        // const data = await loginApi(state.loginForm);
+        // console.log(data);
+        e.preventDefault()
+        validate()
+          .then(res => {
+            axios.post(`http://localhost:8080/api/doLogin?username=${res.username}&password=${res.password}`)
+              .then(data => {
+                if (data) {
+                  if (data.data.success) {
+                    window.sessionStorage.setItem('token', data.data.data.token)
+                    window.sessionStorage.setItem('user', JSON.stringify(data.data.data.hr))
+                    router.push('/')
+                  } else {
+                    message.error(data.data.message)
+                  }
+                }
+              })
+          })
+          .catch(err => err)
+      }
+
       return {
         login,
+        router,
         validateInfos,
         ...toRefs(state)
       }
@@ -56,37 +94,5 @@
 </script>
 
 <style lang="less" scoped>
-  .login-container {
-    width: 100%;
-    height: 100%;
-    background: url("../assets/login-bg.png") repeat;
-
-    .login-form {
-      width: 400px;
-      height: 35vh;
-      background: url("../assets/login.png") no-repeat center;
-      background-size: cover;
-      position: absolute;
-      border-radius: 20px;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -80%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-
-      @media screen and (max-width: 750px) {
-        width: 88vw;
-        right: 25px;
-        top: 28vh;
-      }
-
-      h1 {
-        font-size: 30px;
-        font-family: '华文行楷';
-        text-align: center;
-        color: #333;
-      }
-    }
-  }
+  @import '../style/login.less';
 </style>

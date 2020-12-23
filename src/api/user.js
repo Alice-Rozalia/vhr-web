@@ -1,7 +1,9 @@
 import request from '@/utils/request'
 
-export const getUserListApi = (() => {
+export const loginApi = (data => {
   return request({
-    url: ''
+    url: '/doLogin',
+    method: 'post',
+    data: data
   })
 })

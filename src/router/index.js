@@ -4,12 +4,17 @@ const routes = [
   {
     path: '/',
     name: 'Layout',
-    component: () => import(/* webpackChunkName: "layout" */ '@/layout/index.vue')
+    component: () => import('@/layout/index.vue')
   },
   {
     path: '/login',
     name: 'Login',
-    component: () => import(/* webpackChunkName: "login" */ '@/views/Login.vue')
+    component: () => import('@/views/Login.vue')
+  },
+  {
+    path: '/:catchAll(.*)',
+    name: '/404',
+    component: () => import('@/views/404.vue')
   }
 ]
 
