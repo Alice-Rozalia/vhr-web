@@ -14,7 +14,13 @@ const request = axios.create({
 
 request.interceptors.request.use(config => {
   NProgress.start()
-  return config.data
+  const token = window.sessionStorage.getItem('token')
+  if (token) {
+    config.headers.Authorization = token
+  }
+  return config
+}, error => {
+  return Promise.reject(error)
 })
 
 request.interceptors.response.use(config => {

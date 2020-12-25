@@ -32,8 +32,7 @@
   import { useForm } from '@ant-design-vue/use'
   import { loginApi } from '@/api/user'
   import { useRouter } from 'vue-router'
-  import axios from 'axios'
-  import { message } from 'ant-design-vue'
+  import { notification } from 'ant-design-vue'
 
   export default {
     components: {
@@ -62,23 +61,19 @@
       }))
 
       const login = e => {
-        // const data = await loginApi(state.loginForm);
-        // console.log(data);
         e.preventDefault()
         validate()
-          .then(res => {
-            axios.post(`http://localhost:8080/api/doLogin?username=${res.username}&password=${res.password}`)
-              .then(data => {
-                if (data) {
-                  if (data.data.success) {
-                    window.sessionStorage.setItem('token', data.data.data.token)
-                    window.sessionStorage.setItem('user', JSON.stringify(data.data.data.hr))
-                    router.push('/')
-                  } else {
-                    message.error(data.data.message)
-                  }
-                }
+          .then(async res => {
+            const { data } = await loginApi(res);
+            if (data.success) {
+              window.sessionStorage.setItem('user', JSON.stringify(data.data.hr))
+              window.sessionStorage.setItem('token', data.data.token)
+              notification['success']({
+                message: data.message,
+                duration: 1.5,
               })
+              router.push('/')
+            }
           })
           .catch(err => err)
       }

@@ -2,28 +2,47 @@
   <a-layout class="app-wapper">
     <a-layout-sider class="app-sider" v-model:collapsed="collapsed" :trigger="null" collapsible>
       <div class="logo" />
-      <a-menu theme="dark" mode="inline" v-model:selectedKeys="selectedKeys">
-        <a-menu-item key="1">
-          <user-outlined />
-          <span>nav 1</span>
-        </a-menu-item>
-        <a-menu-item key="2">
-          <video-camera-outlined />
-          <span>nav 2</span>
-        </a-menu-item>
-        <a-menu-item key="3">
-          <upload-outlined />
-          <span>nav 3</span>
-        </a-menu-item>
+      <a-menu v-model:selectedKeys="selectedKeys" mode="inline" theme="dark" :inline-collapsed="collapsed">
+        <router-link to="/home">
+          <a-menu-item key="1">
+            <HomeFilled />
+            <span>首页</span>
+          </a-menu-item>
+        </router-link>
+        <a-sub-menu key="2">
+          <template #title>
+            <span>
+              <UserOutlined /><span>资料管理</span></span>
+          </template>
+          <a-menu-item key="3">Option 5</a-menu-item>
+        </a-sub-menu>
       </a-menu>
     </a-layout-sider>
     <a-layout>
       <a-layout-header class="app-header">
-        <menu-unfold-outlined v-if="collapsed" class="trigger" @click="() => (collapsed = !collapsed)" />
-        <menu-fold-outlined v-else class="trigger" @click="() => (collapsed = !collapsed)" />
+        <div>
+          <menu-unfold-outlined v-if="collapsed" class="trigger" @click="() => (collapsed = !collapsed)" />
+          <menu-fold-outlined v-else class="trigger" @click="() => (collapsed = !collapsed)" />
+        </div>
+        <div class="dropdown-container">
+          <a-dropdown :trigger="['hover']">
+            <span class="dropdown-link">
+              {{user.name}}
+              <img :src="user.userface" class="avatar" />
+            </span>
+            <template #overlay>
+              <a-menu @click="commandHandler">
+                <a-menu-item key="userInfo">个人中心</a-menu-item>
+                <a-menu-item key="setting">设置</a-menu-item>
+                <a-menu-divider />
+                <a-menu-item key="logout">注销登录</a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
+        </div>
       </a-layout-header>
       <a-layout-content :style="{ margin: '24px 16px', padding: '24px', background: '#fff', minHeight: '280px' }">
-        Content
+        <router-view />
       </a-layout-content>
     </a-layout>
   </a-layout>
@@ -35,12 +54,23 @@
     UploadOutlined,
     MenuUnfoldOutlined,
     MenuFoldOutlined,
+    ExclamationCircleOutlined,
+    HomeFilled
   } from '@ant-design/icons-vue'
 
   import {
     reactive,
-    toRefs
+    toRefs,
+    createVNode
   } from 'vue'
+
+  import {
+    logoutApi
+  } from '@/api/user'
+  import useCurrentInstance from '@/hooks/useCurrentInstance'
+  import {
+    useRouter
+  } from 'vue-router'
 
   export default {
     components: {
@@ -49,16 +79,51 @@
       UploadOutlined,
       MenuUnfoldOutlined,
       MenuFoldOutlined,
+      ExclamationCircleOutlined,
+      HomeFilled
     },
 
     setup() {
       const state = reactive({
         selectedKeys: ['1'],
-        collapsed: false
+        collapsed: false,
+        user: JSON.parse(window.sessionStorage.getItem('user'))
       })
 
+      const {
+        globalProperties
+      } = useCurrentInstance()
+      const router = useRouter()
+
+      const commandHandler = ({
+        key
+      }) => {
+        if (key === 'logout') {
+          globalProperties.$Modal.confirm({
+            title: '此操作将注销登录，是否继续？',
+            icon: createVNode(ExclamationCircleOutlined),
+            cancelText: '取消',
+            okText: '注销',
+            async onOk() {
+              const {
+                data
+              } = await logoutApi()
+              if (data.success) {
+                window.sessionStorage.clear
+                router.replace('/login')
+                globalProperties.$message.success(data.message)
+              }
+            },
+            onCancel() {
+              globalProperties.$message.info('操作已取消！')
+            }
+          })
+        }
+      }
+
       return {
-        ...toRefs(state)
+        ...toRefs(state),
+        commandHandler
       }
     }
   }
@@ -71,6 +136,8 @@
   }
 
   .app-header {
+    display: flex;
+    justify-content: space-between;
     padding: 0;
     background: #fff;
 
@@ -83,6 +150,21 @@
 
       &:hover {
         color: #1890ff;
+      }
+    }
+
+    .dropdown-container {
+      padding-right: 25px;
+
+      .dropdown-link {
+        cursor: pointer;
+
+        .avatar {
+          width: 45px;
+          height: 45px;
+          border-radius: 50%;
+          margin-left: 10px;
+        }
       }
     }
   }
