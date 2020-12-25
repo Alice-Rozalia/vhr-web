@@ -4,7 +4,8 @@ import {
   Form,
   Layout,
   Menu,
-  Dropdown
+  Dropdown,
+  Breadcrumb
 } from 'ant-design-vue'
 import 'ant-design-vue/dist/antd.css'
 
@@ -14,7 +15,8 @@ const components = [
   Input,
   Form,
   Layout,
-  Dropdown
+  Dropdown,
+  Breadcrumb
 ]
 
 export function setupAntd(app) {

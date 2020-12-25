@@ -6,9 +6,8 @@ export const initMenu = async (router, store) => {
   }
   const { data } = await getMenusApi()
   let fmtRoutes = formatRoutes(data.data.menus)
-  router.addRoutes(fmtRoutes)
+  router.addRoute(fmtRoutes)
   store.commit('initRoutes', fmtRoutes)
-  store.dispatch('connect')
 }
 export const formatRoutes = (routes) => {
   let fmRoutes = []
@@ -18,7 +17,7 @@ export const formatRoutes = (routes) => {
       component,
       name,
       meta,
-      icon,
+      iconCls,
       children
     } = router
     if (children && children instanceof Array) {
@@ -27,7 +26,7 @@ export const formatRoutes = (routes) => {
     let fmRouter = {
       path: path,
       name: name,
-      icon: icon,
+      iconCls: iconCls,
       meta: meta,
       children: children,
       component(resolve) {

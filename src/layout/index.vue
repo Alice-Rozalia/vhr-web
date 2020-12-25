@@ -9,12 +9,23 @@
             <span>首页</span>
           </a-menu-item>
         </router-link>
-        <a-sub-menu key="2">
+        <a-sub-menu v-for="(item, index) in routes" :key="item.id">
           <template #title>
             <span>
-              <UserOutlined /><span>资料管理</span></span>
+              <FileExcelFilled v-if="index === 0" />
+              <IdcardFilled v-if="index === 1" />
+              <PayCircleFilled v-if="index === 2" />
+              <AreaChartOutlined v-if="index === 3" />
+              <WindowsFilled v-if="index === 4" />
+              <span>{{ item.name }}</span>
+            </span>
           </template>
-          <a-menu-item key="3">Option 5</a-menu-item>
+          <a-menu-item a-menu-item v-for="sub in item.children" :key="sub.id">
+            <router-link :to="sub.path">
+              <AppstoreFilled />
+              {{sub.name}}
+            </router-link>
+          </a-menu-item>
         </a-sub-menu>
       </a-menu>
     </a-layout-sider>
@@ -42,6 +53,14 @@
         </div>
       </a-layout-header>
       <a-layout-content :style="{ margin: '24px 16px', padding: '24px', background: '#fff', minHeight: '280px' }">
+        <a-breadcrumb separator=">" v-if="router.currentRoute._value.path !== '/home'">
+          <a-breadcrumb-item href="">
+            <router-link to="/home">首页</router-link>
+          </a-breadcrumb-item>
+          <a-breadcrumb-item>
+            {{ router.currentRoute._value.name }}
+          </a-breadcrumb-item>
+        </a-breadcrumb>
         <router-view />
       </a-layout-content>
     </a-layout>
@@ -55,22 +74,21 @@
     MenuUnfoldOutlined,
     MenuFoldOutlined,
     ExclamationCircleOutlined,
-    HomeFilled
+    HomeFilled,
+    FileExcelFilled,
+    IdcardFilled,
+    PayCircleFilled,
+    AreaChartOutlined,
+    WindowsFilled,
+    AppstoreFilled
   } from '@ant-design/icons-vue'
 
-  import {
-    reactive,
-    toRefs,
-    createVNode
-  } from 'vue'
+  import { reactive, toRefs, createVNode, computed } from 'vue'
 
-  import {
-    logoutApi
-  } from '@/api/user'
+  import { logoutApi } from '@/api/user'
   import useCurrentInstance from '@/hooks/useCurrentInstance'
-  import {
-    useRouter
-  } from 'vue-router'
+  import { useRouter } from 'vue-router'
+  import { useStore } from 'vuex'
 
   export default {
     components: {
@@ -80,24 +98,32 @@
       MenuUnfoldOutlined,
       MenuFoldOutlined,
       ExclamationCircleOutlined,
-      HomeFilled
+      HomeFilled,
+      FileExcelFilled,
+      IdcardFilled,
+      PayCircleFilled,
+      AreaChartOutlined,
+      WindowsFilled,
+      AppstoreFilled
     },
 
     setup() {
       const state = reactive({
         selectedKeys: ['1'],
         collapsed: false,
-        user: JSON.parse(window.sessionStorage.getItem('user'))
+        user: JSON.parse(window.sessionStorage.getItem('user')),
+        routes: computed(() => {
+          return store.state.routes.filter(item => {
+            return !item.hidden
+          })
+        })
       })
 
-      const {
-        globalProperties
-      } = useCurrentInstance()
+      const { globalProperties } = useCurrentInstance()
       const router = useRouter()
+      const store = useStore()
 
-      const commandHandler = ({
-        key
-      }) => {
+      const commandHandler = ({ key }) => {
         if (key === 'logout') {
           globalProperties.$Modal.confirm({
             title: '此操作将注销登录，是否继续？',
@@ -105,11 +131,10 @@
             cancelText: '取消',
             okText: '注销',
             async onOk() {
-              const {
-                data
-              } = await logoutApi()
+              const { data } = await logoutApi()
               if (data.success) {
                 window.sessionStorage.clear
+                // store.commit('initRoutes', [])
                 router.replace('/login')
                 globalProperties.$message.success(data.message)
               }
@@ -123,6 +148,7 @@
 
       return {
         ...toRefs(state),
+        router,
         commandHandler
       }
     }
