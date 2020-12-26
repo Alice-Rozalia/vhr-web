@@ -1,7 +1,7 @@
 <template>
   <a-layout class="app-wapper">
     <a-layout-sider class="app-sider" v-model:collapsed="collapsed" :trigger="null" collapsible>
-      <div class="logo" />
+      <div class="logo">微人事</div>
       <a-menu v-model:selectedKeys="selectedKeys" mode="inline" theme="dark" :inline-collapsed="collapsed">
         <router-link to="/home">
           <a-menu-item key="1">
@@ -133,8 +133,8 @@
             async onOk() {
               const { data } = await logoutApi()
               if (data.success) {
+                store.commit('initRoutes', [])
                 window.sessionStorage.clear
-                // store.commit('initRoutes', [])
                 router.replace('/login')
                 globalProperties.$message.success(data.message)
               }
@@ -159,6 +159,14 @@
     left: 0;
     height: 100vh;
     overflow: auto;
+
+    .logo {
+      color: #fff;
+      text-align: center;
+      line-height: 32px;
+      font-size: 22px;
+      font-family: '华文行楷';
+    }
   }
 
   .app-header {
