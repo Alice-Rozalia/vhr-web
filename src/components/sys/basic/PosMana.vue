@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- 表单输入框 -->
-    <a-input placeholder="添加职位" class="add-input" v-model:value="position" ref="addInput">
+    <a-input placeholder="添加职位" class="add-input" v-model:value="positionName" ref="addInput">
       <template #prefix>
         <PlusOutlined />
       </template>
@@ -15,9 +15,17 @@
   </div>
 
   <div class="table-container">
-    <a-table :columns="columns" :data-source="data" bordered>
-      <template #name="{text}">
+    <a-table :columns="columns" :rowKey="() => {}" :data-source="positions" bordered style="width: 840px">
+      <template #name="{ text }">
         <a>{{ text }}</a>
+      </template>
+      <template #operation="{ record }">
+        <a-button type="primary" size="small" style="margin-right: 5px">
+          编辑
+        </a-button>
+        <a-button type="danger" size="small" @click="test(record)">
+          删除
+        </a-button>
       </template>
     </a-table>
   </div>
@@ -29,53 +37,36 @@
   } from '@ant-design/icons-vue'
   import {
     toRefs,
-    reactive
+    reactive,
+    onMounted
   } from 'vue'
+  import { getPositionsApi } from '@/api/position'
 
   const columns = [{
       title: '编号',
-      dataIndex: 'name',
-      key: 'name',
-      width: 120,
+      dataIndex: 'id',
+      key: 'id',
+      width: 70
     },
     {
       title: '职位名称',
-      dataIndex: 'age',
-      key: 'age',
+      dataIndex: 'name',
+      key: 'name',
+      ellipsis: true
     },
     {
       title: '创建时间',
-      dataIndex: 'address',
-      key: 'address',
-      ellipsis: true,
+      dataIndex: 'createDate',
+      key: 'createDate',
+      ellipsis: true
     },
     {
       title: '操作',
-      dataIndex: 'address',
-      key: 'address',
-      ellipsis: true,
+      dataIndex: 'operation',
+      width: 135,
+      slots: { customRender: 'operation' }
     }
-  ];
-
-  const data = [{
-      key: '1',
-      name: 'John Brown',
-      age: 32,
-      address: 'New York No. 1 Lake Park, New York No. 1 Lake Park'
-    },
-    {
-      key: '2',
-      name: 'Jim Green',
-      age: 42,
-      address: 'London No. 2 Lake Park'
-    },
-    {
-      key: '3',
-      name: 'Joe Black',
-      age: 32,
-      address: 'Sidney No. 1 Lake Park, Sidney No. 1 Lake Park'
-    },
-  ];
+  ]
 
   export default {
     name: 'PosMana',
@@ -84,13 +75,27 @@
     },
     setup() {
       const state = reactive({
-        position: '',
-        data: data,
+        positionName: '',
+        positions: [],
         columns: columns
       })
 
+      const test = (data) => {
+        console.log(data.age);
+      }
+
+      const initPositions = async () => {
+        const { data } = await getPositionsApi()
+        state.positions = data.data.positions
+      }
+
+      onMounted(() => {
+        initPositions()
+      })
+
       return {
-        ...toRefs(state)
+        ...toRefs(state),
+        test
       }
     }
   }
