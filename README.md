@@ -1,6 +1,9 @@
 # Vue3.x + Ant Design 微人事
+> 原项目地址: https://github.com/lenve/vhr/
 
-## 安装依赖
+> [微人事](https://github.com/lenve/vhr/)
+
+### 安装依赖
 ```
 yarn install
 ```

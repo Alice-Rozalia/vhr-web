@@ -51,8 +51,16 @@
 <script>
   import { PlusOutlined, SmileOutlined, DeleteOutlined } from '@ant-design/icons-vue'
   import { toRefs, onMounted } from 'vue'
-  import { state, handleEdit, handleDelete, addPosition, initPositions, deleteMany, onSelectChange } from '@/hooks/system/position'
   import EditableCell from '@/components/EditableCell.vue'
+  import {
+    state,
+    handleEdit,
+    handleDelete,
+    addPosition,
+    initPositions,
+    deleteMany,
+    onSelectChange
+} from '@/hooks/system/position'
 
   export default {
     name: 'PosMana',

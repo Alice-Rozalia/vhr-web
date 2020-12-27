@@ -1,4 +1,10 @@
-import { getPositionsApi, addPositionsApi, deletePositionsApi, editPositionsApi, deleteManyApi } from '@/api/position'
+import {
+  getPositionsApi,
+  addPositionsApi,
+  deletePositionsApi,
+  editPositionsApi,
+  deleteManyApi
+} from '@/api/position'
 import { reactive, createVNode, computed } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import { ExclamationCircleOutlined } from '@ant-design/icons-vue'
@@ -51,8 +57,10 @@ const state = reactive({
 
 const handleEdit = async (id, name) => {
   const { data } = await editPositionsApi({ id: id, name: name })
-  if (data.success) return message.success(data.message)
-  initPositions()
+  if (data.success) {
+    message.success(data.message)
+    initPositions()
+  }
 }
 
 const handleDelete = (pos) => {
@@ -115,4 +123,12 @@ const initPositions = async () => {
   state.positions = data.data.positions
 }
 
-export { state, handleEdit, handleDelete, addPosition, initPositions, deleteMany, onSelectChange }
+export {
+  state,
+  handleEdit,
+  handleDelete,
+  addPosition,
+  initPositions,
+  deleteMany,
+  onSelectChange
+}
