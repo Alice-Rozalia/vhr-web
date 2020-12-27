@@ -29,6 +29,19 @@ request.interceptors.response.use(config => {
     message.error(config.data.message || '服务器端异常！')
   }
   return config
+}, error => {
+  if (error.response.status == 504 || error.response.status == 404) {
+    message.error('服务器被吃了( ╯□╰ )！')
+  } else if (error.response.status == 403) {
+    message.error('权限不足！')
+  } else {
+    if (error.response.data.msg) {
+      message.error(error.response.data.message)
+    } else {
+      message.error('未知错误！')
+    }
+  }
+  return
 })
 
 export default request

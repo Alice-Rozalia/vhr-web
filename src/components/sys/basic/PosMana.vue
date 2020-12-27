@@ -1,101 +1,79 @@
 <template>
   <div>
     <!-- 表单输入框 -->
-    <a-input placeholder="添加职位" class="add-input" v-model:value="positionName" ref="addInput">
+    <a-input placeholder="添加职位" class="add-input" v-model:value="position.name" ref="addInput">
       <template #prefix>
         <PlusOutlined />
       </template>
     </a-input>
 
     <!-- 添加按钮 -->
-    <a-button type="primary">
-      <template #icon>
-        <PlusOutlined /></template>添加
+    <a-button type="primary" @click="addPosition">
+      <template #icon><PlusOutlined /></template>添加
     </a-button>
   </div>
 
   <div class="table-container">
-    <a-table :columns="columns" :rowKey="() => {}" :data-source="positions" bordered style="width: 840px">
-      <template #name="{ text }">
-        <a>{{ text }}</a>
+    <a-alert message="鼠标移动到职位名称单元格上可进行修改" type="info" style="width: 840px" showIcon>
+      <template #icon><smile-outlined /></template>
+    </a-alert>
+    <a-table
+      :columns="columns"
+      :pagination="false"
+      rowKey="id"
+      size="middle"
+      :row-selection="{ selectedRowKeys: selectedRowKeys, onChange: onSelectChange }"
+      :data-source="positions"
+      bordered
+      style="width: 840px"
+    >
+      <template #name="{ text, record }">
+        <editable-cell :text="text" :record="record" @change="val => handleEdit(record.id, val)" />
       </template>
-      <template #operation="{ record }">
-        <a-button type="primary" size="small" style="margin-right: 5px">
-          编辑
-        </a-button>
-        <a-button type="danger" size="small" @click="test(record)">
+      <template #tags="{ text: enabled }">
+        <a-tag v-if="enabled" color="success">启用</a-tag>
+        <a-tag v-else color="error">禁用</a-tag>
+      </template>
+      <template #action="{ record }">
+        <a-button type="danger" size="small" @click="handleDelete(record)">
           删除
         </a-button>
       </template>
     </a-table>
   </div>
+
+  <!-- 批量删除按钮 -->
+  <a-button type="danger" @click="deleteMany" :disabled="!hasSelected">
+    <template #icon><DeleteOutlined /></template>批量删除
+  </a-button>
 </template>
 
 <script>
-  import {
-    PlusOutlined
-  } from '@ant-design/icons-vue'
-  import {
-    toRefs,
-    reactive,
-    onMounted
-  } from 'vue'
-  import { getPositionsApi } from '@/api/position'
-
-  const columns = [{
-      title: '编号',
-      dataIndex: 'id',
-      key: 'id',
-      width: 70
-    },
-    {
-      title: '职位名称',
-      dataIndex: 'name',
-      key: 'name',
-      ellipsis: true
-    },
-    {
-      title: '创建时间',
-      dataIndex: 'createDate',
-      key: 'createDate',
-      ellipsis: true
-    },
-    {
-      title: '操作',
-      dataIndex: 'operation',
-      width: 135,
-      slots: { customRender: 'operation' }
-    }
-  ]
+  import { PlusOutlined, SmileOutlined, DeleteOutlined } from '@ant-design/icons-vue'
+  import { toRefs, onMounted } from 'vue'
+  import { state, handleEdit, handleDelete, addPosition, initPositions, deleteMany, onSelectChange } from '@/hooks/system/position'
+  import EditableCell from '@/components/EditableCell.vue'
 
   export default {
     name: 'PosMana',
     components: {
-      PlusOutlined
+      PlusOutlined,
+      EditableCell,
+      SmileOutlined,
+      DeleteOutlined
     },
     setup() {
-      const state = reactive({
-        positionName: '',
-        positions: [],
-        columns: columns
-      })
-
-      const test = (data) => {
-        console.log(data.age);
-      }
-
-      const initPositions = async () => {
-        const { data } = await getPositionsApi()
-        state.positions = data.data.positions
-      }
-
       onMounted(() => {
         initPositions()
       })
 
       return {
         ...toRefs(state),
-        test
+        handleEdit,
+        handleDelete,
+        addPosition,
+        deleteMany,
+        onSelectChange
       }
     }
   }
