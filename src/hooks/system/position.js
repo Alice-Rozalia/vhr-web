@@ -38,7 +38,6 @@ const columns = [{
   },
   {
     title: '操作',
-    dataIndex: 'action',
     width: 100,
     align: 'center',
     slots: { customRender: 'action' }
