@@ -154,10 +154,16 @@
     }
   }
 </script>
+
+<style>
+  .ant-layout {
+    height: 100%;
+  }
+</style>
 <style lang="less" scoped>
   .app-sider {
     left: 0;
-    height: 100vh;
+    height: 100%;
     overflow: auto;
 
     .logo {
