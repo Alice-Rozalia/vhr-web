@@ -13,3 +13,18 @@ export const logoutApi = (() => {
     method: 'get'
   })
 })
+
+export const fetchHrListApi = (() => {
+  return request({
+    url: '/system/basic/hr/list',
+    method: 'get'
+  })
+})
+
+export const updateHrStatusApi = (hr => {
+  return request({
+    url: '/system/basic/hr/status',
+    method: 'put',
+    data: hr
+  })
+})
