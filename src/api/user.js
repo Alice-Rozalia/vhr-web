@@ -14,10 +14,11 @@ export const logoutApi = (() => {
   })
 })
 
-export const fetchHrListApi = (() => {
+export const fetchHrListApi = (keywords => {
   return request({
     url: '/system/basic/hr/list',
-    method: 'get'
+    method: 'get',
+    params: {keywords}
   })
 })
 
@@ -26,5 +27,19 @@ export const updateHrStatusApi = (hr => {
     url: '/system/basic/hr/status',
     method: 'put',
     data: hr
+  })
+})
+
+export const fetchAllRolesApi = (() => {
+  return request({
+    url: '/system/basic/hr/roles',
+    method: 'get'
+  })
+})
+
+export const deleteHrByIdApi = (id => {
+  return request({
+    url: '/system/basic/hr/delete/' + id,
+    method: 'delete'
   })
 })

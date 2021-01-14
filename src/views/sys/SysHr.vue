@@ -2,19 +2,19 @@
   <div>
     <!-- 顶部搜索框 -->
     <div class="hd-input">
-      <a-input placeholder="通过用户名搜索用户..." v-model.value="keywords">
+      <a-input placeholder="通过用户名搜索用户..." v-model:value="keywords">
         <template #prefix>
           <SearchOutlined />
         </template>
       </a-input>
-      <a-button type="primary"><template #icon><SearchOutlined /></template>搜索</a-button>
+      <a-button type="primary" @click="search"><template #icon><SearchOutlined /></template>搜索</a-button>
     </div>
 
     <!-- 用户列表 -->
     <div class="main">
       <a-card :title="item.name" v-for="item in hrs" :key="item.id">
         <template #extra>
-          <a-button type="link" size="small" style="color: #e11b33">
+          <a-button type="link" size="small" style="color: #e11b33" @click="deleteHr(item)">
             <template #icon><DeleteOutlined /></template>
           </a-button>
         </template>
@@ -32,9 +32,25 @@
               <a-tag color="cyan" style="margin-bottom: 3px;" v-for="role in item.roles" :key="role.id + item.name">
                 {{ role.nameZh }}
               </a-tag>
-              <a-button type="link" size="small">
-                <template #icon><EllipsisOutlined /></template>
-              </a-button>
+              <a-popover placement="right" title="角色列表" @visibleChange="showPop(item)">
+                <template #content>
+                  <a-select
+                    mode="multiple"
+                    placeholder="该用户的角色"
+                    v-model:value="seletedRoles"
+                    option-label-prop="label"
+                    style="width: 100%"
+                    showArrow
+                  >
+                    <a-select-option v-for="r in allRoles" :key="r.id + r.name" :value="r.id" :label="r.nameZh">
+                      {{ r.nameZh }}
+                    </a-select-option>
+                  </a-select>
+                </template>
+                <a-button type="link" size="small">
+                  <template #icon><EllipsisOutlined /></template>
+                </a-button>
+              </a-popover>
             </div>
             <div>备注：{{item.remark}}</div>
           </div>
@@ -50,7 +66,10 @@
   import {
     state,
     initHrs,
-    hrStatusChange
+    hrStatusChange,
+    showPop,
+    search,
+    deleteHr
   } from '@/hooks/system/hr'
   export default {
     name: 'SysHr',
@@ -66,7 +85,10 @@
 
       return {
         ...toRefs(state),
-        hrStatusChange
+        hrStatusChange,
+        showPop,
+        search,
+        deleteHr
       }
     }
   }
