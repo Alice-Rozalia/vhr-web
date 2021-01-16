@@ -184,17 +184,74 @@ const columns = [{
 
 const state = reactive({
   columns: columns,
-  employee: []
+  employee: [],
+  dataLoading: true,
+  total: 0,
+  query: {
+    page: 1,
+    limit: 10,
+    key: ''
+  },
+  addEmpInfo: {
+    name: '',
+    gender: '',
+    birthday: '',
+    idCard: '',
+    wedlock: '',
+    nationId: 0,
+    nativePlace: '',
+    politicId: 0,
+    email: '',
+    phone: '',
+    address: '',
+    departmentId: 0,
+    jobLevelId: 0,
+    posId: 0,
+    engageForm: '',
+    tiptopDegree: '',
+    specialty: '',
+    school: '',
+    beginDate: '',
+    workState: '',
+    workId: '',
+    contractTerm: 0,
+    beginContract: '',
+    endContract: '',
+    conversionTime: ''
+  },
+  addVisible: false
 })
 
 const initEmployee = async () => {
-  const { data } = await fetchEmployeeApi()
+  state.dataLoading = true
+  const { data } = await fetchEmployeeApi(state.query)
   if (data.success) {
     state.employee = data.data.employee.items
+    state.total = data.data.employee.total
+    console.log(data.data.employee);
+    state.dataLoading = false
   }
+}
+
+const pageChange = page => {
+  state.query.page = page
+  initEmployee()
+}
+
+const limitChange = (current, size) => {
+  state.query.page = current
+  state.query.limit = size
+  initEmployee()
+}
+
+const showAddEmpVisible = () => {
+  state.addVisible = true
 }
 
 export {
   state,
-  initEmployee
+  initEmployee,
+  pageChange,
+  limitChange,
+  showAddEmpVisible
 }
