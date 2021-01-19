@@ -63,7 +63,7 @@
       </div>
     </div>
 
-    <a-modal title="添加员工" v-model:visible="addVisible" okText="添加" cancelText="取消" width="78%">
+    <a-modal @ok="addEmployee" title="添加员工" v-model:visible="addVisible" okText="添加" cancelText="取消" width="78%">
       <a-form>
         <a-row :gutter="16">
           <a-col :span="6">
@@ -94,8 +94,8 @@
           <a-col :span="7">
             <a-form-item label="政治面貌">
               <a-select v-model:value="addEmpInfo.politicId" placeholder="政治面貌" style="width: 200px">
-                <a-select-option value="团员">
-                  团员
+                <a-select-option :value="item.id" v-for="item in politicsstatus" :key="item.id">
+                  {{ item.name }}
                 </a-select-option>
               </a-select>
             </a-form-item>
@@ -107,8 +107,8 @@
           <a-col :span="6">
             <a-form-item label="民族">
               <a-select v-model:value="addEmpInfo.nationId" placeholder="民族" style="width: 150px">
-                <a-select-option value="汉">
-                  汉
+                <a-select-option :value="item.id" v-for="item in nations" :key="item.id">
+                  {{ item.name }}
                 </a-select-option>
               </a-select>
             </a-form-item>
@@ -144,8 +144,8 @@
           <a-col :span="6">
             <a-form-item label="职位">
               <a-select v-model:value="addEmpInfo.posId" placeholder="职位" style="width: 150px">
-                <a-select-option value="汉">
-                  汉
+                <a-select-option :value="item.id" v-for="item in position" :key="item.id">
+                  {{ item.name }}
                 </a-select-option>
               </a-select>
             </a-form-item>
@@ -153,18 +153,20 @@
           <a-col :span="5">
             <a-form-item label="职称">
               <a-select v-model:value="addEmpInfo.jobLevelId" placeholder="职称" style="width: 120px">
-                <a-select-option value="汉">
-                  汉
+                <a-select-option :value="item.id" v-for="item in joblevels" :key="item.id">
+                  {{ item.name }}
                 </a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
           <a-col :span="6">
-            <a-form-item label="所属部门">
-                <a-input placeholder="所属部门" v-model:value="addEmpInfo.departmentId" style="width: 150px">
-                <template #prefix>
-                  <EditOutlined /></template>
-              </a-input>
+            <a-form-item label="所属部门" style="display: flex;align-items: center;">
+              <a-popover v-model:visible="empVisible" title="请选择部门" trigger="click" placement="right">
+                <template #content>
+                  <a-tree @select="selectNodeTree" :tree-data="departments" :replace-fields="replaceFields" defaultExpandAll />
+                </template>
+                <div class="department-input" @click="showDepView">{{inputDepName}}</div>
+              </a-popover>
             </a-form-item>
           </a-col>
           <a-col :span="7">
@@ -188,9 +190,12 @@
           <a-col :span="5">
             <a-form-item label="学历">
               <a-select v-model:value="addEmpInfo.tiptopDegree" placeholder="学历" style="width: 120px">
-                <a-select-option value="汉">
-                  汉
-                </a-select-option>
+                <a-select-option value="初中">初中</a-select-option>
+                <a-select-option value="高中">高中</a-select-option>
+                <a-select-option value="大专">大专</a-select-option>
+                <a-select-option value="本科">本科</a-select-option>
+                <a-select-option value="硕士">硕士</a-select-option>
+                <a-select-option value="博士">博士</a-select-option>
               </a-select>
             </a-form-item>
           </a-col>
@@ -299,7 +304,10 @@
     initEmployee,
     pageChange,
     limitChange,
-    showAddEmpVisible
+    showAddEmpVisible,
+    showDepView,
+    selectNodeTree,
+    addEmployee
   } from '@/hooks/emp/employee'
 
   export default {
@@ -324,7 +332,10 @@
         initEmployee,
         pageChange,
         limitChange,
-        showAddEmpVisible
+        showAddEmpVisible,
+        showDepView,
+        selectNodeTree,
+        addEmployee
       }
     }
   }
@@ -349,5 +360,16 @@
 
   .pagination-box {
     margin-top: 20px;
+  }
+
+  .department-input {
+    width: 150px;
+    height: 28px;
+    border: 1px solid #d9d9d9;
+    font-size: 13px;
+    cursor: pointer;
+    line-height: 28px;
+    padding-left: 10px;
+    color: #bfbfbf;
   }
 </style>

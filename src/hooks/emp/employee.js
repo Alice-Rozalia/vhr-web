@@ -1,7 +1,16 @@
-import { reactive, computed, createVNode } from 'vue'
+import { reactive, createVNode } from 'vue'
 import { message, Modal } from 'ant-design-vue'
 import { ExclamationCircleOutlined } from '@ant-design/icons-vue'
-import { fetchEmployeeApi } from '@/api/employee'
+import {
+  fetchEmployeeApi,
+  fetchNationsApi,
+  fetchPoliticsstatusApi,
+  fetchMaxWorkIdApi,
+  addEmployeeApi
+} from '@/api/employee'
+import { fetchJobLevelsApi } from '@/api/jobLevel'
+import { getPositionsApi} from '@/api/position'
+import { fetchDepartmentsApi } from '@/api/department'
 
 const columns = [{
   title: '姓名',
@@ -198,28 +207,39 @@ const state = reactive({
     birthday: '',
     idCard: '',
     wedlock: '',
-    nationId: 0,
+    nationId: null,
     nativePlace: '',
-    politicId: 0,
+    politicId: null,
     email: '',
     phone: '',
     address: '',
-    departmentId: 0,
-    jobLevelId: 0,
-    posId: 0,
+    departmentId: null,
+    jobLevelId: null,
+    posId: null,
     engageForm: '',
-    tiptopDegree: '',
+    tiptopDegree: null,
     specialty: '',
     school: '',
     beginDate: '',
     workState: '',
     workId: '',
-    contractTerm: 0,
+    contractTerm: null,
     beginContract: '',
     endContract: '',
     conversionTime: ''
   },
-  addVisible: false
+  addVisible: false,
+  nations: JSON.parse(window.sessionStorage.getItem('nations')),
+  joblevels: JSON.parse(window.sessionStorage.getItem('joblevels')),
+  politicsstatus: JSON.parse(window.sessionStorage.getItem('politicsstatus')),
+  position: JSON.parse(window.sessionStorage.getItem('position')),
+  empVisible: false,
+  departments: [],
+  replaceFields: {
+    title: 'name',
+    key: 'id'
+  },
+  inputDepName: ''
 })
 
 const initEmployee = async () => {
@@ -228,7 +248,6 @@ const initEmployee = async () => {
   if (data.success) {
     state.employee = data.data.employee.items
     state.total = data.data.employee.total
-    console.log(data.data.employee);
     state.dataLoading = false
   }
 }
@@ -246,6 +265,78 @@ const limitChange = (current, size) => {
 
 const showAddEmpVisible = () => {
   state.addVisible = true
+  initData()
+}
+
+const initData = () => {
+  if (!window.sessionStorage.getItem('nations')) {
+    fetchNationsApi().then(res => {
+      if (res.data.success) {
+        state.nations = res.data.data.nations
+        window.sessionStorage.setItem('nations', JSON.stringify(res.data.data.nations))
+      }
+    })
+  }
+
+  if (!window.sessionStorage.getItem('joblevels')) {
+    fetchJobLevelsApi().then(res => {
+      if (res.data.success) {
+        state.joblevels = res.data.data.job_level
+        window.sessionStorage.setItem('joblevels', JSON.stringify(res.data.data.job_level))
+      }
+    })
+  }
+
+  if (!window.sessionStorage.getItem('politicsstatus')) {
+    fetchPoliticsstatusApi().then(res => {
+      if (res.data.success) {
+        state.politicsstatus = res.data.data.list
+        window.sessionStorage.setItem('politicsstatus', JSON.stringify(res.data.data.list))
+      }
+    })
+  }
+
+  if (!window.sessionStorage.getItem('position')) {
+    getPositionsApi().then(res => {
+      if (res.data.success) {
+        state.position = res.data.data.positions
+        window.sessionStorage.setItem('position', JSON.stringify(res.data.data.positions))
+      }
+    })
+  }
+
+  fetchMaxWorkIdApi().then(res => {
+    if (res.data.success) {
+      state.addEmpInfo.workId = res.data.data.max_work_id
+    }
+  })
+}
+
+const showDepView = () => {
+  state.empVisible = true
+  initDepartments()
+}
+
+const initDepartments = async () => {
+  const { data } = await fetchDepartmentsApi()
+  if (data.success) {
+    state.departments = data.data.departments
+  }
+}
+
+const selectNodeTree = (keys, e) => {
+  state.addEmpInfo.departmentId = keys[0]
+  state.inputDepName = e.selectedNodes[0].props.name
+  state.empVisible = false
+}
+
+const addEmployee = async () => {
+  const { data } = await addEmployeeApi(state.addEmpInfo)
+  if (data.success) {
+    state.addVisible = false
+    initEmployee()
+    message.success("添加成功！")
+  }
 }
 
 export {
@@ -253,5 +344,8 @@ export {
   initEmployee,
   pageChange,
   limitChange,
-  showAddEmpVisible
+  showAddEmpVisible,
+  showDepView,
+  selectNodeTree,
+  addEmployee
 }
